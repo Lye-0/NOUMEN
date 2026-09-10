@@ -1,6 +1,6 @@
 'use strict';
 const test=require('node:test');const assert=require('node:assert/strict');const fs=require('node:fs');const path=require('node:path');
-require('../js/catalog.js');require('../js/math.js');require('../js/shaders.js');
+require('../js/catalog.js');require('../js/math.js');require('../js/architecture-shaders.js');require('../js/shaders.js');
 const {catalog,math:M,shaders}=globalThis.Noumen;
 const root=path.resolve(__dirname,'..');
 test('five unique worlds, with complete Japanese museum records',()=>{
@@ -19,7 +19,7 @@ test('HTML, styles, scripts and images are separate local assets',()=>{
   assert.doesNotMatch(html,/(?:src|href)="https?:/);assert.ok(fs.existsSync(path.join(root,'.nojekyll')));assert.ok(!fs.existsSync(path.join(root,'.github')));
 });
 test('all document controls referenced literally by the app exist',()=>{const html=fs.readFileSync(path.join(root,'index.html'),'utf8'),app=fs.readFileSync(path.join(root,'js/app.js'),'utf8');for(const m of app.matchAll(/\$\('([^']+)'\)/g))assert.ok(html.includes(`id="${m[1]}"`),m[1]);});
-test('shaders implement real ray/solid intersections, not 2D planet images',()=>{for(const name of ['sphere','fractured','annulus','planetColor','sunGlow'])assert.ok(shaders.fragment.includes(name+'('));assert.ok(shaders.fragment.includes('uniform vec4 uWorlds[5]'));assert.doesNotMatch(shaders.fragment,/https?:/);});
+test('shaders implement real ray/solid intersections, not 2D planet images',()=>{for(const name of ['sphere','oblateHit','annulus','planetColor','sunGlow'])assert.ok(shaders.fragment.includes(name+'('));assert.ok(shaders.fragment.includes('uniform vec4 uWorlds[5]'));assert.doesNotMatch(shaders.fragment,/https?:/);});
 test('static fallback artwork exists for all six exhibitions',()=>{for(const id of ['overview',...catalog.map(x=>x.id)])for(const suffix of ['','-mobile'])assert.ok(fs.statSync(path.join(root,'assets','fallback-'+id+suffix+'.jpg')).size>5000,id+suffix);});
 
 test('GLSL smoothstep uses defined increasing numeric edges',()=>{for(const m of shaders.fragment.matchAll(/smoothstep\(\s*([.\d]+)\s*,\s*([.\d]+)\s*,/g))assert.ok(Number(m[1])<Number(m[2]),m[0]);});

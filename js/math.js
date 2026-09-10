@@ -31,3 +31,4 @@
   };
   N.math=Object.freeze({add,sub,scale,dot,cross,normalize,mix,clamp,ease,cameraBasis,project,raySphere});
 })(globalThis);
+

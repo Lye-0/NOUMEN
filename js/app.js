@@ -4,7 +4,7 @@
   const $=id=>document.getElementById(id);
   const body=document.body,canvas=$('universe'),exhibit=$('exhibit'),scroller=exhibit.querySelector('.exhibit-scroll');
   const reduceQuery=root.matchMedia('(prefers-reduced-motion: reduce)');
-  const state={index:-1,focus:-1,isolation:0,hover:-1,time:0,paused:reduceQuery.matches,reduced:reduceQuery.matches,ready:false,fallback:false,quality:'standard',camera:null,transition:null,width:innerWidth,height:innerHeight,mobile:innerWidth<=760&&innerHeight>innerWidth};
+  const state={index:-1,focus:-1,isolation:0,hover:-1,time:0,paused:reduceQuery.matches,reduced:reduceQuery.matches,ready:false,fallback:false,contextLost:false,quality:'standard',camera:null,transition:null,width:innerWidth,height:innerHeight,mobile:innerWidth<=760&&innerHeight>innerWidth};
   let renderer=null,raf=0,lastFrame=0,lastDraw=0,showTimer=0,toastTimer=0,transitionGeneration=0;
   let worlds=[],flatWorlds=new Float32Array(20),hotspots=[];
   let needsDraw=true;
@@ -33,8 +33,8 @@
     const item=catalog[index],w=worlds[index],c=item.camera,r=w.radius;
     if(state.mobile){
       // The planet is above the reading panel; the stage and the text never share a single fixed layout.
-      const distance=index===2?6.8:index===4?5.5:index===3?6.6:4.3;
-      const vertical=index===2?-1.8:index===4?-1.60:index===3?-1.22:-1.30;
+      const distance=index===0?5.3:index===2?6.8:index===4?5.5:index===3?6.6:4.3;
+      const vertical=index===0?-1.20:index===2?-1.8:index===4?-1.60:index===3?-1.22:-1.30;
       const cam=M.add(w.position,[r*.06,r*.03,r*distance]);
       return {position:cam,target:M.add(w.position,[index===2?-.35*r:0,vertical*r,0]),fov:47};
     }
@@ -225,9 +225,11 @@
   }
   // Non-invasive diagnostics for verification. No user data, storage or telemetry.
   root.NOUMEN_DIAGNOSTICS=Object.freeze({
-    get state(){return {index:state.index,ready:state.ready,fallback:state.fallback,paused:state.paused,quality:state.quality,mobile:state.mobile,isolation:state.isolation,transitioning:!!state.transition,canvas:[canvas.width,canvas.height],time:state.time};},
+    get state(){return {index:state.index,ready:state.ready,fallback:state.fallback,contextLost:state.contextLost,paused:state.paused,quality:state.quality,mobile:state.mobile,isolation:state.isolation,transitioning:!!state.transition,canvas:[canvas.width,canvas.height],time:state.time};},
     capture:()=>renderer?.capture(),
+    get renderInfo(){return renderer?{version:'1.2.0',programs:renderer.programs.length,fractureTriangles:(renderer.geometry?.vertices||0)/3,architectureTriangles:(renderer.structureGeometry?.vertices||0)/3,architectureModules:renderer.structureGeometry?.modules||0,shadowSize:renderer.structureShadowTarget?.width||0,atlasGradientFiltering:renderer.hasDerivatives&&renderer.hasTextureGrad}:null;},
     get camera(){return state.camera?JSON.parse(JSON.stringify(state.camera)):null;}
   });
   init();
 })(globalThis);
+

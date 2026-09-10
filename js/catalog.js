@@ -75,3 +75,4 @@
     }
   ].map(item => Object.freeze(item)));
 })(globalThis);
+
