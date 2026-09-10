@@ -135,7 +135,7 @@ vec3 bumpNormal(vec3 n,vec3 local,float index){
 
 const vec3 WARM=vec3(-.65,.56,.514);
 const vec3 COOL=vec3(.64,.30,.707);
-float cloudDensity(vec3 dir){return texture2D(uClouds,sphereUV(ry(.72+uTime*.0064)*normalize(dir))).r;}
+float cloudDensity(vec3 dir){return texture2D(uClouds,sphereUV(ry(.72+uTime*.015)*normalize(dir))).r;}
 float cloudShadow(vec3 point,vec3 light){
   float t=firstSphere(point,light,1.0032);
   if(t>=FAR)return 1.;
@@ -154,7 +154,7 @@ float oceanGlint(vec3 n,vec3 view,vec3 light){
   return min(5.,distribution*geometry*fresnel/max(4.*nv,.02));
 }
 vec3 geminaColor(vec3 world,vec3 normal,vec3 local,vec3 rd,vec3 center,float radius){
-  mat3 rotation=ry(.48+uTime*.0054);
+  mat3 rotation=ry(.48+uTime*.0105);
   vec3 direction=rotation*local;
   vec2 uv=sphereUV(direction);
   vec3 albedo=pow(texture2D(uGeminaAlbedo,uv).rgb,vec3(2.2));
@@ -174,7 +174,7 @@ vec3 geminaColor(vec3 world,vec3 normal,vec3 local,vec3 rd,vec3 center,float rad
   float ct=firstSphere((uCamera-center)/radius,rd,1.0032);
   if(ct<FAR){
     vec3 cp=(uCamera-center)/radius+rd*ct,cn=normalize(cp);
-    vec3 cloud=texture2D(uClouds,sphereUV(ry(.72+uTime*.0064)*cn)).rgb;
+    vec3 cloud=texture2D(uClouds,sphereUV(ry(.72+uTime*.015)*cn)).rgb;
     float alpha=1.-exp(-cloud.r*2.5);
     vec3 t=normalize(vec3(-cn.z,0.,cn.x)),bt=cross(cn,t);
     cn=normalize(cn+t*(cloud.g*2.-1.)*.34+bt*(cloud.b*2.-1.)*.34);
@@ -242,7 +242,7 @@ vec3 planetColor(float index,vec3 world,vec3 normal,vec3 local,vec3 rd,float kin
  if(index>.5&&index<1.5)return vec3(0.);
  vec3 view=-rd;
  if(index<.5){
-   vec3 tex=ry(.38+uTime*.0018)*local;
+   vec3 tex=ry(.38+uTime*.0048)*local;
    vec3 albedo=surface(tex,0.);
    vec3 material=atlas(tex,1.);
    vec3 n=atlasNormal(normal,tex,1.,.44);
@@ -257,7 +257,7 @@ vec3 planetColor(float index,vec3 world,vec3 normal,vec3 local,vec3 rd,float kin
    return col;
  }
  if(index<2.5){
-   vec3 tex=ry(.62+uTime*.006)*ringLocal(local);
+   vec3 tex=ry(.62+uTime*.014)*ringLocal(local);
    vec3 albedo=surface(tex,2.);
    float nl=max(dot(normal,RING_SUN),0.),nv=max(dot(normal,view),0.);
    float shadow=shadowOnRingPlanet(world+normal*radius*.001,RING_SUN,center,radius);
@@ -267,7 +267,7 @@ vec3 planetColor(float index,vec3 world,vec3 normal,vec3 local,vec3 rd,float kin
    col+=vec3(.42,.40,.34)*pow(1.-nv,5.)*nl*shadow*.032;
    return col;
  }
- vec3 tex=ry(.20+uTime*.0022)*local;
+ vec3 tex=ry(.20+uTime*.0052)*local;
  vec3 albedo=surface(tex,4.);
  vec3 n=atlasNormal(normal,tex,5.,.40);
  float nl=max(dot(n,SUN),0.);

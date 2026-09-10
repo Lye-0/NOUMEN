@@ -4,7 +4,7 @@
   const $=id=>document.getElementById(id);
   const body=document.body,canvas=$('universe'),exhibit=$('exhibit'),scroller=exhibit.querySelector('.exhibit-scroll');
   const reduceQuery=root.matchMedia('(prefers-reduced-motion: reduce)');
-  const state={index:-1,focus:-1,isolation:0,hover:-1,time:0,paused:reduceQuery.matches,reduced:reduceQuery.matches,ready:false,fallback:false,contextLost:false,quality:'standard',camera:null,transition:null,width:innerWidth,height:innerHeight,mobile:innerWidth<=760&&innerHeight>innerWidth};
+  const state={index:-1,focus:-1,isolation:0,hover:-1,time:0,paused:false,reduced:reduceQuery.matches,ready:false,fallback:false,contextLost:false,quality:'standard',camera:null,transition:null,width:innerWidth,height:innerHeight,mobile:innerWidth<=760&&innerHeight>innerWidth};
   let renderer=null,raf=0,lastFrame=0,lastDraw=0,showTimer=0,toastTimer=0,transitionGeneration=0;
   let worlds=[],flatWorlds=new Float32Array(20),hotspots=[];
   let needsDraw=true;
@@ -151,7 +151,7 @@
     raf=0;if(!state.ready||document.hidden||state.contextLost)return;
     const delta=lastFrame?Math.min((now-lastFrame)/1000,.06):0;lastFrame=now;
     const animating=!!state.transition;
-    if(!state.paused&&!state.fallback)state.time+=delta;
+    if(!state.paused&&!state.fallback){const motionRate=state.reduced?.45:2.1;state.time+=delta*motionRate;}
     if(state.transition){
       const t=state.transition,p=t.duration?M.clamp((now-t.start)/t.duration):1,e=M.ease(p);
       state.camera={position:M.mix(t.from.position,t.to.position,e),target:M.mix(t.from.target,t.to.target,e),fov:t.from.fov+(t.to.fov-t.from.fov)*e};
@@ -159,14 +159,14 @@
       needsDraw=true;
       if(p>=1){state.transition=null;state.focus=state.index;state.isolation=state.index<0?0:1;}
     }
-    // Conservative rendering budget on phones. A paused exhibition stops requesting frames.
+    // Conservative rendering budget on phones. Rendering still advances at a measured cadence.
     const interval=state.mobile?1000/30:1000/45;
     if(now-lastDraw>=interval||needsDraw){
       if(renderer&&!state.fallback){
         let camera=state.camera;
         // Sub-pixel optical drift, disabled by pause or reduced-motion preferences.
         if(!state.reduced&&!state.paused&&!animating){
-          const r=state.index<0?.030:worlds[state.index].radius*.008;
+          const r=state.index<0?.048:worlds[state.index].radius*.013;
           camera={...camera,position:M.add(camera.position,[Math.sin(state.time*.095)*r,Math.sin(state.time*.07)*r*.6,0])};
         }
         renderer.render({camera,time:state.time,worlds:flatWorlds,focus:state.focus,isolation:state.isolation,hover:state.hover});
@@ -206,7 +206,7 @@
       if(event.key==='ArrowRight'){event.preventDefault();setHash(state.index<0?0:(state.index+1)%5);}
       if(event.key==='ArrowLeft'){event.preventDefault();setHash(state.index<0?4:(state.index+4)%5);}
     });
-    reduceQuery.addEventListener('change',e=>{state.reduced=e.matches;if(e.matches){state.paused=true;if(state.transition)state.transition.duration=0;}updatePause();});
+    reduceQuery.addEventListener('change',e=>{state.reduced=e.matches;if(e.matches&&state.transition)state.transition.duration=0;updatePause();});
     document.addEventListener('visibilitychange',()=>{lastFrame=0;if(document.hidden){cancelAnimationFrame(raf);raf=0;}else{needsDraw=true;startLoop();}});
   }
   async function init(){
