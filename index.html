@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#05080b">
+  <meta name="description" content="NOUMEN — 深宙観測博物館。五つの架空の天体を、宇宙から静かに鑑賞する3D展示。">
+  <title>NOUMEN — 深宙観測博物館</title>
+  <link rel="icon" type="image/svg+xml" href="./assets/mark.svg">
+  <link rel="stylesheet" href="./css/main.css">
+  <script defer src="./js/catalog.js"></script>
+  <script defer src="./js/math.js"></script>
+  <script defer src="./js/shaders.js"></script>
+  <script defer src="./js/renderer.js"></script>
+  <script defer src="./js/app.js"></script>
+</head>
+<body class="is-loading is-overview">
+  <a href="#collection" class="skip-link">展示を選ぶ</a>
+  <main id="museum" aria-label="NOUMEN 深宙観測博物館">
+    <div id="space" class="space">
+      <canvas id="universe" aria-label="架空の惑星系の3D風景"></canvas>
+      <img id="fallback-image" class="fallback-image" alt="惑星系の展示風景" hidden>
+      <div class="space-shade"></div>
+      <div class="film-grain" aria-hidden="true"></div>
+    </div>
+
+    <header class="masthead">
+      <a class="wordmark" href="#overview" aria-label="NOUMEN 惑星系の全体へ">
+        <svg class="brand-mark" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="12"/><ellipse cx="20" cy="20" rx="19" ry="6" transform="rotate(-45 20 20)"/><path d="M20 2v6M20 32v6"/></svg>
+        <span>NOUMEN<small>深宙観測博物館</small></span>
+      </a>
+      <div class="masthead-center"><span class="tiny-cross">+</span> THE UNOBSERVED ARCHIVE <span class="tiny-cross">+</span></div>
+      <button type="button" id="about-open" class="text-button about-button">本館について <span aria-hidden="true">↗</span></button>
+    </header>
+
+    <section id="overview-copy" class="overview-copy" aria-labelledby="overview-title">
+      <p class="eyebrow"><span class="hairline"></span> COLLECTION 001</p>
+      <h1 id="overview-title">未知は、<br>静かに存在する。</h1>
+      <p class="overview-subtitle">THE SILENT SYSTEM</p>
+      <p class="overview-description">理解するためではなく、<br>ただ、その存在を見つめるために。</p>
+    </section>
+
+    <div id="hotspots" class="hotspots" aria-label="天体の位置から展示を選択"></div>
+    <div class="overview-note" id="overview-note"><span class="note-line"></span><p>五つの天体。ひとつの未解決。<small>SELECT A WORLD TO OBSERVE</small></p></div>
+    <div id="edge-caption" class="edge-caption" aria-hidden="true">BEYOND THE LIMIT OF UNDERSTANDING</div>
+
+    <a id="back-button" class="back-button" href="#overview" hidden><span aria-hidden="true">⟵</span> 惑星系へ</a>
+    <section id="exhibit" class="exhibit" aria-labelledby="exhibit-name" hidden>
+      <div class="exhibit-scroll" tabindex="-1">
+        <p class="eyebrow exhibit-eyebrow"><span id="exhibit-number">01</span><span class="hairline"></span><span id="exhibit-category"></span></p>
+        <h2 id="exhibit-name"></h2>
+        <p id="exhibit-japanese" class="exhibit-japanese"></p>
+        <h3 id="exhibit-title" class="exhibit-title"></h3>
+        <p id="exhibit-description" class="exhibit-description"></p>
+        <dl id="exhibit-facts" class="exhibit-facts"></dl>
+        <div class="observation"><p class="observation-heading"><span class="observation-symbol" aria-hidden="true">⌑</span> OBSERVATION NOTE</p><p id="exhibit-observation"></p></div>
+        <p id="exhibit-note" class="exhibit-note"></p>
+      </div>
+      <div id="read-hint" class="read-hint" hidden aria-hidden="true">解説をスクロール <span>↓</span></div>
+    </section>
+
+    <div class="scene-index" id="scene-index" hidden aria-hidden="true"><span id="scene-index-number">01</span><span>/ 05</span></div>
+    <div class="scene-caption" id="scene-caption" hidden aria-hidden="true"></div>
+    <div class="exhibit-arrows" id="exhibit-arrows" hidden>
+      <button type="button" id="previous" aria-label="前の天体へ">←</button>
+      <button type="button" id="next" aria-label="次の天体へ">→</button>
+    </div>
+
+    <footer class="collection-footer">
+      <div class="collection-meta">
+        <span id="current-context">THE COLLECTION <span class="meta-divider">/</span> 5 WORLDS</span>
+        <div class="view-controls">
+          <span class="render-status" id="render-status"><i></i> OBSERVING</span>
+          <button type="button" id="quality" class="control-button" aria-label="描画品質：標準。クリックで変更">描画 <span>標準</span></button>
+          <button type="button" id="pause" class="control-button pause-button" aria-label="天体の動きを一時停止" aria-pressed="false"><span class="pause-icon" aria-hidden="true">Ⅱ</span><span id="pause-label">一時停止</span></button>
+        </div>
+      </div>
+      <nav id="collection" class="collection" aria-label="天体の展示一覧"></nav>
+      <div class="bottom-line"><span>NOUMEN <span class="bottom-dot">·</span> A MUSEUM OF IMPOSSIBLE WORLDS</span><span>すべての天体・観測記録は架空のものです。</span></div>
+    </footer>
+
+    <div class="loading-screen" id="loading-screen" role="status" aria-live="polite">
+      <div class="loading-orbit" aria-hidden="true"><span></span></div><p>NOUMEN</p><span id="loading-message">観測窓を開いています</span><div class="loading-track"><i id="loading-progress"></i></div>
+    </div>
+    <div id="toast" class="toast" role="status" hidden></div>
+    <p id="announcer" class="sr-only" aria-live="polite" aria-atomic="true"></p>
+    <noscript><div class="noscript">この展示にはJavaScriptが必要です。ブラウザの設定でJavaScriptを有効にしてください。</div></noscript>
+  </main>
+
+  <dialog id="about-dialog" class="about-dialog" aria-labelledby="about-title">
+    <button type="button" id="about-close" class="dialog-close" aria-label="本館についてを閉じる">×</button>
+    <p class="eyebrow">A NOTE FROM THE CURATOR</p>
+    <h2 id="about-title">解けないまま、<br>ここに残す。</h2>
+    <p>NOUMEN〈ノウメン〉は、理解の外側にある天体を収蔵する、架空の宇宙博物館です。</p>
+    <p>ここでは、説明のつかない観測結果も、説明のつく結果と同じ精度で記録されます。展示の目的は、答えを示すことではありません。</p>
+    <p class="about-signature">深宙観測博物館<br><span>資料保存・未分類天体部門</span></p>
+    <div class="about-instructions"><h3>鑑賞について</h3><p>天体、または画面下の展示名を選ぶと個別展示へ移動します。「惑星系へ」で全体へ戻ります。キーボードの ← → で展示を切り替え、Esc で全体へ戻れます。</p><p>「一時停止」は自転と背景の動きを止めます。端末の「視差効果を減らす」設定にも対応しています。動作が重い場合は、描画品質を「低」に切り替えてください。</p></div>
+    <p class="fiction-note">天体・名称・数値・観測記録はすべて創作です。天体の距離、縮尺、照明は展示のために再構成しています。</p>
+  </dialog>
+</body>
+</html>
